@@ -5,9 +5,9 @@ import { asyncHandler } from '../utils/asyncHandler.js';
 
 const registerUser = asyncHandler(async (req, res) => {
     try {
-        const {username, email, password} = req.body;
+        const {username, email, password, fullName } = req.body;
         // validate request
-        if(!username || !email || !password) {
+        if(!username || !email || !password || !fullName) {
             return res.status(400).json(new ApiError(400, 'All fields are required'));
         }
         const isUserExists = await User.findOne({$or: [{email}, {username}]});
@@ -15,7 +15,7 @@ const registerUser = asyncHandler(async (req, res) => {
         if(isUserExists) {
             return res.status(400).json(new ApiError(400, 'User already exists with this email or username'));
         }
-        const user = await User.create({username, email, password});
+        const user = await User.create({username, email, password, fullName});
         await user.save();
         // remove password and __v from the response
         const updatedResponse = await User.findById(user._id).select('-password -__v');
